@@ -14,6 +14,7 @@ import java.util.UUID;
 
 import static com.ecommerce.neighboursnackbe.entity.Role.ROLE_ADMIN;
 import static com.ecommerce.neighboursnackbe.entity.Role.ROLE_CUSTOMER;
+import static java.lang.Boolean.TRUE;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class UserServiceImpl implements UserService {
                     .name("Admin")
                     .email("admin@neighboursnack.com")
                     .password(passwordEncoder.encode("Admin@1234"))
-                    .enabled(true)
+                    .enabled(TRUE)
                     .role(ROLE_ADMIN)
                     .image(null)
                     .phoneNumber(null)

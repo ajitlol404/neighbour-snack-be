@@ -3,6 +3,8 @@ package com.ecommerce.neighboursnackbe.exception;
 import com.ecommerce.neighboursnackbe.dto.ErrorResponseDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -19,6 +21,18 @@ import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class GlobalRestExceptionHandler {
+
+    @ExceptionHandler({BadCredentialsException.class, InternalAuthenticationServiceException.class})
+    @ResponseStatus(UNAUTHORIZED)
+    public ErrorResponseDTO handleAuthenticationExceptions(RuntimeException ex, HttpServletRequest request) {
+        return ErrorResponseDTO.of(
+                UNAUTHORIZED.value(),
+                UNAUTHORIZED.getReasonPhrase(),
+                "Invalid email or password",
+                request.getRequestURI(),
+                request.getMethod()
+        );
+    }
 
     @ExceptionHandler(CategoryException.class)
     @ResponseStatus(BAD_REQUEST)
