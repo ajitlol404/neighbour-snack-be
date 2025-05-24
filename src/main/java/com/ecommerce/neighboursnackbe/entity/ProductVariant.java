@@ -14,14 +14,18 @@ import java.math.BigDecimal;
 @Builder
 public class ProductVariant extends BaseEntity {
 
-    @Column(nullable = false, length = 20)
-    private String packSize;  // e.g., "100gm", "1kg", "10pcs"
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal weightValue; // e.g., 250, 1, 1.25
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 2)
+    private WeightUnit weightUnit;  // g or kg
 
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
     @Column(nullable = false)
-    private Boolean inStock;
+    private Integer stockQuantity;
 
     @ManyToOne
     @JoinColumn(name = "product_uuid")

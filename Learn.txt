@@ -1,0 +1,18 @@
+1.  Change the default messages.properties filename to something else
+=====================================================================
+In application.yml:
+spring:
+  messages:
+    basename: validation-messages
+
+2.  ✅ Issue with @CreationTimestamp and @UpdateTimestamp not populating immediately
+    While creating a new category, I noticed that the createdAt and updatedAt fields were coming back as null in the response,
+    even though they were annotated with @CreationTimestamp and @UpdateTimestamp in the entity (BaseEntity).
+    The reason is that these annotations are handled by Hibernate during the flush phase — not at the time of save().
+    Since I wasn't flushing the persistence context (e.g., using saveAndFlush()),
+    the timestamps hadn't been generated yet when mapping the entity to a DTO for the response.
+
+    ✅ How I fixed it
+    1. Use saveAndFlush()
+    2. Manually set createdAt and updatedAt
+    3. Use @PrePersist and @PreUpdate in BaseEntity (✅)

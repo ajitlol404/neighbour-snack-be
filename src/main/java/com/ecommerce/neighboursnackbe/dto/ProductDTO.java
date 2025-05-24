@@ -3,6 +3,7 @@ package com.ecommerce.neighboursnackbe.dto;
 import com.ecommerce.neighboursnackbe.entity.Category;
 import com.ecommerce.neighboursnackbe.entity.Product;
 import com.ecommerce.neighboursnackbe.entity.ProductVariant;
+import com.ecommerce.neighboursnackbe.entity.WeightUnit;
 import com.ecommerce.neighboursnackbe.util.AppUtil;
 import jakarta.validation.constraints.*;
 
@@ -59,23 +60,29 @@ public class ProductDTO {
     }
 
     public record ProductVariantRequestDTO(
-            @NotBlank(message = "{product.variant.packSize.required}")
-            @Size(max = 20, message = "{product.variant.packSize.maxSize}")
-            String packSize,
+            @NotNull(message = "{product.variant.weightValue.required}")
+            @Digits(integer = 10, fraction = 2, message = "{product.variant.weightValue.digits}")
+            @Positive(message = "{product.variant.weightValue.positive}")
+            BigDecimal weightValue,
+
+            @NotNull(message = "{product.variant.weightUnit.required}")
+            WeightUnit weightUnit,
 
             @NotNull(message = "{product.variant.price.required}")
             @Positive(message = "{product.variant.price.positive}")
             @Digits(integer = 10, fraction = 2, message = "{product.variant.price.digits}")
             BigDecimal price,
 
-            @NotNull(message = "{product.variant.inStock.required}")
-            Boolean inStock
+            @NotNull(message = "{product.variant.stockQuantity.required}")
+            @PositiveOrZero(message = "{product.variant.stockQuantity.positiveOrZero}")
+            Integer stockQuantity
     ) {
         public ProductVariant toEntity(Product product) {
             return ProductVariant.builder()
-                    .packSize(packSize)
+                    .weightValue(weightValue)
+                    .weightUnit(weightUnit)
                     .price(price)
-                    .inStock(inStock)
+                    .stockQuantity(stockQuantity)
                     .product(product)
                     .build();
         }
@@ -83,16 +90,18 @@ public class ProductDTO {
 
     public record ProductVariantResponseDTO(
             UUID uuid,
-            String packSize,
+            BigDecimal weightValue,
+            WeightUnit weightUnit,
             BigDecimal price,
-            boolean inStock
+            Integer stockQuantity
     ) {
         public static ProductVariantResponseDTO fromEntity(ProductVariant variant) {
             return new ProductVariantResponseDTO(
                     variant.getUuid(),
-                    variant.getPackSize(),
+                    variant.getWeightValue(),
+                    variant.getWeightUnit(),
                     variant.getPrice(),
-                    variant.getInStock()
+                    variant.getStockQuantity()
             );
         }
     }

@@ -2,8 +2,6 @@ package com.ecommerce.neighboursnackbe.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -20,12 +18,22 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID uuid;
 
-    @CreationTimestamp
     @Column(nullable = false, updatable = false)
     private ZonedDateTime createdAt;
 
-    @UpdateTimestamp
     @Column(nullable = false)
     private ZonedDateTime updatedAt;
+
+    @PrePersist
+    public void prePersist() {
+        ZonedDateTime now = ZonedDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = ZonedDateTime.now();
+    }
 
 }
