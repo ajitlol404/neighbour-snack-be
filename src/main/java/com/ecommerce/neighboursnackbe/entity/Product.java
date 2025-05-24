@@ -25,7 +25,7 @@ public class Product extends BaseEntity {
     private String description;
 
     @Column(length = 500)
-    private String productImage;
+    private String image;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_uuid", nullable = false)

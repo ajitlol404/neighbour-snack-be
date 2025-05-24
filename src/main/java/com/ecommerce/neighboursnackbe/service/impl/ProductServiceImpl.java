@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-import static com.ecommerce.neighboursnackbe.util.AppConstant.IMAGE_DIRECTORY;
+import static com.ecommerce.neighboursnackbe.util.AppConstant.PRODUCT_IMAGE_DIRECTORY;
 
 @Service
 @RequiredArgsConstructor
@@ -84,11 +84,11 @@ public class ProductServiceImpl implements ProductService {
         String normalizedFileName = product.getNormalizedName() + fileExtension;
 
         try {
-            Files.createDirectories(IMAGE_DIRECTORY);
-            Path filePath = IMAGE_DIRECTORY.resolve(normalizedFileName);
+            Files.createDirectories(PRODUCT_IMAGE_DIRECTORY);
+            Path filePath = PRODUCT_IMAGE_DIRECTORY.resolve(normalizedFileName);
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-            product.setProductImage(normalizedFileName);
+            product.setImage(normalizedFileName);
             return ProductResponseDTO.fromEntity(productRepository.save(product));
 
         } catch (IOException e) {
@@ -99,15 +99,15 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Resource getProductImage(UUID categoryId, UUID productId) {
         Product product = productRepository.findProductByUuid(productId);
-        Path imagePath = IMAGE_DIRECTORY.resolve(product.getProductImage());
+        Path imagePath = PRODUCT_IMAGE_DIRECTORY.resolve(product.getImage());
 
         try {
             if (!Files.exists(imagePath)) {
-                throw new NoSuchElementException("Image not found: " + product.getProductImage());
+                throw new NoSuchElementException("Image not found: " + product.getImage());
             }
             return new UrlResource(imagePath.toUri());
         } catch (Exception e) {
-            throw new RuntimeException("Invalid file path for image: " + product.getProductImage(), e);
+            throw new RuntimeException("Invalid file path for image: " + product.getImage(), e);
         }
     }
 
@@ -123,12 +123,12 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProductByIdInCategory(UUID categoryId, UUID productId) {
         Category category = categoryRepository.findCategoryByUuid(categoryId);
         Product product = productRepository.findProductByUuid(productId);
-        if (product.getProductImage() != null) {
-            Path imagePath = IMAGE_DIRECTORY.resolve(product.getProductImage());
+        if (product.getImage() != null) {
+            Path imagePath = PRODUCT_IMAGE_DIRECTORY.resolve(product.getImage());
             try {
                 Files.deleteIfExists(imagePath); // Deletes image if it exists
             } catch (IOException e) {
-                throw new RuntimeException("Error deleting product image: " + product.getProductImage(), e);
+                throw new RuntimeException("Error deleting product image: " + product.getImage(), e);
             }
         }
 

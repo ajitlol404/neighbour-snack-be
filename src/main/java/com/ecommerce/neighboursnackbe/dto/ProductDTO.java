@@ -113,7 +113,7 @@ public class ProductDTO {
                     product.getName(),
                     product.getNormalizedName(),
                     product.getDescription(),
-                    product.getProductImage(),
+                    product.getImage(),
                     product.getCategory().getName(),
                     product.getCategory().getUuid(),
                     product.getVariants().stream()

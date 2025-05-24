@@ -1,5 +1,6 @@
 package com.ecommerce.neighboursnackbe.security.jwt;
 
+import com.ecommerce.neighboursnackbe.security.UserDetailsImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -41,6 +42,10 @@ public class JwtService {
                     .toList());
         }
 
+        if (userDetails instanceof UserDetailsImpl customUser) {
+            claims.put("name", customUser.getName());
+        }
+
         return buildToken(claims, userDetails, jwtExpiration);
     }
 
@@ -52,7 +57,7 @@ public class JwtService {
         return Jwts
                 .builder()
                 .claims(extraClaims)
-                .subject(userDetails.getUsername())
+                .subject(((UserDetailsImpl) userDetails).getUuid().toString())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), Jwts.SIG.HS256)
@@ -64,11 +69,18 @@ public class JwtService {
         return claims.get("roles", List.class);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-    }
+//    public boolean isTokenValid(String token, UserDetails userDetails) {
+//        final String username = extractUsername(token);
+//        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+//    }
 
+    // Use this for jwt subject as uuid
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final UUID userUuid = extractUserUuid(token);
+        if (userDetails instanceof UserDetailsImpl userDetailsImpl)
+            return (userUuid.equals(userDetailsImpl.getUuid())) && !isTokenExpired(token);
+        return false;
+    }
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -90,4 +102,13 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
+    public String extractName(String token) {
+        return extractAllClaims(token).get("name", String.class);
+    }
+
+    public UUID extractUserUuid(String token) {
+        return UUID.fromString(extractClaim(token, Claims::getSubject));
+    }
+
 }

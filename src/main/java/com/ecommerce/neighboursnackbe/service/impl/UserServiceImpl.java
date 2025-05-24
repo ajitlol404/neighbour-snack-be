@@ -5,15 +5,21 @@ import com.ecommerce.neighboursnackbe.entity.User;
 import com.ecommerce.neighboursnackbe.repository.UserRepository;
 import com.ecommerce.neighboursnackbe.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import static com.ecommerce.neighboursnackbe.entity.Role.ROLE_ADMIN;
 import static com.ecommerce.neighboursnackbe.entity.Role.ROLE_CUSTOMER;
+import static com.ecommerce.neighboursnackbe.util.AppConstant.USER_IMAGE_DIRECTORY;
 import static java.lang.Boolean.TRUE;
 
 @Service
@@ -77,5 +83,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean userExistsByEmail(String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Resource getUserImage(UUID userUuid) {
+        User user = userRepository.findUserByUuid(userUuid);
+        Path imagePath = USER_IMAGE_DIRECTORY.resolve(user.getImage());
+
+        try {
+            if (!Files.exists(imagePath)) {
+                throw new NoSuchElementException("Image not found: " + user.getImage());
+            }
+            return new UrlResource(imagePath.toUri());
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid file path for image: " + user.getImage(), e);
+        }
     }
 }
