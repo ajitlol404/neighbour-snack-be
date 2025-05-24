@@ -38,10 +38,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         final String jwt = authHeader.substring(7);
-        final String userUuid = jwtService.extractUsername(jwt); // UUID as string from JWT subject
+        final UUID userUuid = jwtService.extractUserUuid(jwt); // UUID from JWT subject
 
         if (userUuid != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUuid(UUID.fromString(userUuid));
+            UserDetails userDetails = this.userDetailsService.loadUserByUuid(userUuid);
 
             if (jwtService.isTokenValid(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(

@@ -22,8 +22,8 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long jwtExpiration;
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public UUID extractUserUuid(String token) {
+        return UUID.fromString(extractClaim(token, Claims::getSubject));
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
@@ -69,18 +69,13 @@ public class JwtService {
         return claims.get("roles", List.class);
     }
 
-//    public boolean isTokenValid(String token, UserDetails userDetails) {
-//        final String username = extractUsername(token);
-//        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
-//    }
-
-    // Use this for jwt subject as uuid
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final UUID userUuid = extractUserUuid(token);
         if (userDetails instanceof UserDetailsImpl userDetailsImpl)
             return (userUuid.equals(userDetailsImpl.getUuid())) && !isTokenExpired(token);
         return false;
     }
+
     private boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
@@ -105,10 +100,6 @@ public class JwtService {
 
     public String extractName(String token) {
         return extractAllClaims(token).get("name", String.class);
-    }
-
-    public UUID extractUserUuid(String token) {
-        return UUID.fromString(extractClaim(token, Claims::getSubject));
     }
 
 }
